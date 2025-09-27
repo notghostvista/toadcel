@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TOADCEL - ToadVille Bay's Premier Cellular Provider</title>
+    <link rel="icon" type="image/png" href="images/TOADCELfavicon.png">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">
+                <img src="images/TOADCEL.png" alt="TOADCEL Logo" class="logo-img">
+            </div>
+            <button class="menu-toggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <ul class="nav-menu">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="plans.html">Plans</a></li>
+                <li><a href="coverage.html">Coverage</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+    <script>
+        const menuToggle = document.querySelector('.menu-toggle');
+        const navMenu = document.querySelector('.nav-menu');
+        
+        menuToggle.addEventListener('click', () => {
+            menuToggle.classList.toggle('active');
+            navMenu.classList.toggle('active');
+            document.body.classList.toggle('menu-open');
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!menuToggle.contains(e.target) && !navMenu.contains(e.target) && navMenu.classList.contains('active')) {
+                menuToggle.classList.remove('active');
+                navMenu.classList.remove('active');
+                document.body.classList.remove('menu-open');
+            }
+        });
+
+        // Navigation menu functionality
+        document.addEventListener('DOMContentLoaded', () => {
+            const coverageImg = document.getElementById('coverageImg');
+            const zoomInBtn = document.getElementById('zoomIn');
+            const zoomOutBtn = document.getElementById('zoomOut');
+            
+            let scale = 1;
+            let isDragging = false;
+            let startX, startY, translateX = 0, translateY = 0;
+            let lastClick = 0;
+            
+            // Zoom controls
+            zoomInBtn.addEventListener('click', () => {
+                if (scale < 4) {
+                    scale *= 1.5;
+                    updateTransform();
+                }
+            });
+            
+            zoomOutBtn.addEventListener('click', () => {
+                if (scale > 0.5) {
+                    scale /= 1.5;
+                    if (scale === 1) {
+                        translateX = 0;
+                        translateY = 0;
+                    }
+                    updateTransform();
+                }
+            });
+            
+            // Mouse wheel zoom
+            coverageMap.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const delta = e.deltaY * -0.001;
+                const newScale = scale + delta;
+                
+                if (newScale >= 0.5 && newScale <= 4) {
+                    scale = newScale;
+                    updateTransform();
+                }
+            });
+            
+            // Improved dragging functionality for both mouse and touch
+            function startDragging(e) {
+                const now = Date.now();
+                if (now - lastClick < 300) return; // Prevent drag start if double clicking/tapping
+                
+                isDragging = true;
+                const point = e.touches ? e.touches[0] : e;
+                startX = point.clientX - translateX;
+                startY = point.clientY - translateY;
+                coverageMap.style.cursor = 'grabbing';
+                lastClick = now;
+            }
+
+            function doDrag(e) {
+                if (!isDragging) return;
+                
+                e.preventDefault();
+                const point = e.touches ? e.touches[0] : e;
+                translateX = point.clientX - startX;
+                translateY = point.clientY - startY;
+                
+                // Limit dragging to prevent moving too far from the center
+                const maxTranslate = 300 * scale;
+                translateX = Math.max(Math.min(translateX, maxTranslate), -maxTranslate);
+                translateY = Math.max(Math.min(translateY, maxTranslate), -maxTranslate);
+                
+                updateTransform();
+            }
+            
+            function stopDragging() {
+                if (isDragging) {
+                    isDragging = false;
+                    coverageMap.style.cursor = 'grab';
+                }
+            }
+            
+            // Mouse events
+            coverageMap.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                startDragging(e);
+            });
+            
+            coverageMap.addEventListener('mousemove', doDrag);
+            coverageMap.addEventListener('mouseup', stopDragging);
+            coverageMap.addEventListener('mouseleave', stopDragging);
+            
+            // Touch events
+            coverageMap.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                startDragging(e);
+            });
+            
+            coverageMap.addEventListener('touchmove', doDrag);
+            coverageMap.addEventListener('touchend', stopDragging);
+            coverageMap.addEventListener('touchcancel', stopDragging);
+            
+            function updateTransform() {
+                coverageImg.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+            }
+
+            // Coverage info functionality
+            const coverageInfo = document.getElementById('coverageInfo');
+            let clickTimeout;
+
+            function getColorAtPoint(x, y) {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = coverageImg.width;
+                canvas.height = coverageImg.height;
+                ctx.drawImage(coverageImg, 0, 0);
+                
+                try {
+                    // Sample a small area around the click point for better detection
+                    const size = 5;
+                    const data = ctx.getImageData(
+                        Math.max(0, x * canvas.width - size/2),
+                        Math.max(0, y * canvas.height - size/2),
+                        size,
+                        size
+                    ).data;
+                    
+                    // Get average color from sampled area
+                    let r = 0, g = 0, b = 0, a = 0;
+                    let validPixels = 0;
+                    
+                    for (let i = 0; i < data.length; i += 4) {
+                        // Only count pixels that aren't fully transparent
+                        if (data[i + 3] > 20) { // Alpha threshold
+                            r += data[i];
+                            g += data[i + 1];
+                            b += data[i + 2];
+                            a += data[i + 3];
+                            validPixels++;
+                        }
+                    }
+                    
+                    if (validPixels === 0) {
+                        return { color: 'transparent', isTransparent: true };
+                    }
+
+                    // Calculate average color
+                    r = Math.round(r / validPixels);
+                    g = Math.round(g / validPixels);
+                    b = Math.round(b / validPixels);
+                    a = Math.round(a / validPixels);
+
+                    // Check if the average alpha is low (mostly transparent)
+                    if (a < 50) {
+                        return { color: 'transparent', isTransparent: true };
+                    }
+
+                    return {
+                        color: `rgb(${r}, ${g}, ${b})`,
+                        isTransparent: false
+                    };
+                } catch (e) {
+                    console.log('Color detection error:', e);
+                    return { color: 'transparent', isTransparent: true };
+                }
+            }
+
+            function getCoverageInfo(color) {
+                // RGB values for each coverage type
+                const coverageTypes = {
+                    '#34a853': 'This area has 5G Coverage (Up to 1Gbps) ⚡',
+                    '#4285f4': 'This area has 4G/LTE Coverage (Up to 100Mbps) 📶',
+                    '#fbbc05': 'This area has 3G Coverage (Up to 10Mbps) 📱',
+                    '#9334e6': 'This area has 2G/1G Coverage (Basic Service) 📞',
+                    '#cccccc': 'No Coverage Available in This Area ❌',
+                };
+
+                // Find closest matching color
+                let minDistance = Infinity;
+                let matchedCoverage = 'No coverage in this area';
+
+                for (let [refColor, coverage] of Object.entries(coverageTypes)) {
+                    const distance = getColorDistance(color, refColor);
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        matchedCoverage = coverage;
+                    }
+                }
+
+                return matchedCoverage;
+            }
+
+            function getColorDistance(color1, color2) {
+                // Convert hex to rgb if needed
+                const rgb1 = color1.startsWith('#') ? hexToRgb(color1) : parseRgb(color1);
+                const rgb2 = color2.startsWith('#') ? hexToRgb(color2) : parseRgb(color2);
+                
+                return Math.sqrt(
+                    Math.pow(rgb1.r - rgb2.r, 2) +
+                    Math.pow(rgb1.g - rgb2.g, 2) +
+                    Math.pow(rgb1.b - rgb2.b, 2)
+                );
+            }
+
+            function hexToRgb(hex) {
+                const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+                return result ? {
+                    r: parseInt(result[1], 16),
+                    g: parseInt(result[2], 16),
+                    b: parseInt(result[3], 16)
+                } : null;
+            }
+
+            function parseRgb(rgb) {
+                const match = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+                return match ? {
+                    r: parseInt(match[1]),
+                    g: parseInt(match[2]),
+                    b: parseInt(match[3])
+                } : null;
+            }
+
+            let isInfoVisible = false;
+            let canClick = true;
+
+            // Handle clicks on the map
+            function handleMapClick(e) {
+                if (isDragging) return; // Don't show info if we're dragging
+
+                // Get click position relative to the image
+                const rect = coverageImg.getBoundingClientRect();
+                const x = (e.type.includes('touch') ? e.touches[0].clientX : e.clientX) - rect.left;
+                const y = (e.type.includes('touch') ? e.touches[0].clientY : e.clientY) - rect.top;
+
+                // Check if click is within image bounds
+                if (x < 0 || x > rect.width || y < 0 || y > rect.height) {
+                    return; // Click is outside image bounds
+                }
+
+                // Convert to relative coordinates
+                const relX = x / rect.width;
+                const relY = y / rect.height;
+
+                // Get the color at the clicked point
+                const color = getColorAtPoint(relX, relY);
+                let message;
+
+                // Determine the coverage based on the color
+                const rgb = color.match(/\d+/g);
+                if (!rgb) {
+                    message = 'No Coverage Available in This Area ❌';
+                } else {
+                    const [r, g, b] = rgb.map(Number);
+                    
+                    // Check for different coverage types based on dominant color
+                    if (g > Math.max(r, b)) {
+                        message = 'This area has 5G Coverage (Up to 1Gbps) ⚡';
+                    } else if (b > Math.max(r, g)) {
+                        message = 'This area has 4G/LTE Coverage (Up to 100Mbps) 📶';
+                    } else if (r > 150 && g > 150) {
+                        message = 'This area has 3G Coverage (Up to 10Mbps) 📱';
+                    } else if (r > b && b > g) {
+                        message = 'This area has 2G/1G Coverage (Basic Service) 📞';
+                    } else {
+                        message = 'No Coverage Available in This Area ❌';
+                    }
+                }
+
+                // Update and show the coverage info
+                coverageInfo.textContent = message;
+                coverageInfo.classList.add('active');
+
+                // Hide the info after 4 seconds
+                clearTimeout(clickTimeout);
+                clickTimeout = setTimeout(() => {
+                    coverageInfo.classList.remove('active');
+                }, 4000);
+            }
+
+            // Add event listeners for both mouse clicks and touch
+            coverageMap.addEventListener('click', handleMapClick);
+            coverageMap.addEventListener('touchstart', handleMapClick);
+        });
+    </script>
+
+    <section class="hero">
+        <div class="hero-content container">
+            <h1>Welcome to TOADCEL</h1>
+            <p>ToadVille Bay's Most Reliable Cellular Network</p>
+        </div>
+    </section>
+
+    <section class="stats">
+        <div class="container">
+            <h2>Extensive Network Coverage</h2>
+            <p>Experience seamless connectivity throughout ToadVille Bay with our advanced network infrastructure.</p>
+            <div class="stats-grid">
+                <div class="stat">
+                    <span class="stat-number">99.9%</span>
+                    <span class="stat-label">Population Coverage</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-number">500+</span>
+                    <span class="stat-label">5G Towers</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-number">1Gbps</span>
+                    <span class="stat-label">Max Speed</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="features">
+        <div class="container">
+            <h2>Why Choose TOADCEL?</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <img src="images/coverage-icon.png" alt="Coverage Icon">
+                    </div>
+                    <h3>Island-Wide Coverage</h3>
+                    <p>Stay connected across all of ToadVille Bay with our state-of-the-art 5G network</p>
+                    <ul class="feature-list">
+                        <li>99.9% Island Coverage</li>
+                        <li>5G Speed Up to 1Gbps</li>
+                        <li>Seamless Roaming</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <img src="images/value-icon.png" alt="Value Icon">
+                    </div>
+                    <h3>Best Value Plans</h3>
+                    <p>Competitive rates in TB$ with no hidden fees and exclusive benefits</p>
+                    <ul class="feature-list">
+                        <li>Flexible Payment Options</li>
+                        <li>Family Plan Discounts</li>
+                        <li>Loyalty Rewards</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <img src="images/support-icon.png" alt="Support Icon">
+                    </div>
+                    <h3>24/7 Support</h3>
+                    <p>Our local support team is always here to help with any questions</p>
+                    <ul class="feature-list">
+                        <li>Live Chat Support</li>
+                        <li>Video Consultations</li>
+                        <li>In-Store Assistance</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+                </script>
+                <div class="coverage-info">
+                    <h3>Extensive Network Coverage</h3>
+                    <p>Experience seamless connectivity throughout ToadVille Bay with our advanced network infrastructure.</p>
+                    <div class="coverage-stats">
+                        <div class="stat">
+                            <span class="stat-number">99.9%</span>
+                            <span class="stat-label">Population Coverage</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number">500+</span>
+                            <span class="stat-label">5G Towers</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number">1Gbps</span>
+                            <span class="stat-label">Max Speed</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="testimonials">
+        <div class="container">
+            <h2>What Our Customers Say</h2>
+            <div class="testimonial-slider">
+                <div class="testimonial-card">
+                    <div class="testimonial-content">
+                        <p>"TOADCEL's coverage is amazing! I never lose signal, even in the remote Marsh Meadows area."</p>
+                        <div class="testimonial-author">
+                            <img src="images/testimonial-1.png" alt="Customer 1">
+                            <div class="author-info">
+                                <h4>Lily Padsworth</h4>
+                                <span>Marsh Meadows Resident</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Add more testimonial cards as needed -->
+            </div>
+        </div>
+    </section>
+
+    <section class="cta">
+        <div class="container">
+            <h2>Ready to Join ToadVille Bay's Best Network?</h2>
+            <p>Download our app to manage your account, track usage, and pay bills on the go.</p>
+            <div class="app-buttons">
+                <a href="#" class="app-button">
+                    <img src="images/app-store.png" alt="Download on App Store">
+                </a>
+                <a href="#" class="app-button">
+                    <img src="images/play-store.png" alt="Get it on Play Store">
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 TOADCEL. All rights reserved.</p>
+            <p>Proudly serving ToadVille Bay</p>
+        </div>
+    </footer>
+</body>
+</html>

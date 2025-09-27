@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - TOADCEL</title>
+    <link rel="icon" type="image/png" href="images/TOADCELfavicon.png">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">
+                <img src="images/TOADCEL.png" alt="TOADCEL Logo" class="logo-img">
+            </div>
+            <button class="menu-toggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <ul class="nav-menu">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="plans.html">Plans</a></li>
+                <li><a href="coverage.html">Coverage</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+    <script>
+        const menuToggle = document.querySelector('.menu-toggle');
+        const navMenu = document.querySelector('.nav-menu');
+        
+        menuToggle.addEventListener('click', () => {
+            menuToggle.classList.toggle('active');
+            navMenu.classList.toggle('active');
+            document.body.classList.toggle('menu-open');
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!menuToggle.contains(e.target) && !navMenu.contains(e.target) && navMenu.classList.contains('active')) {
+                menuToggle.classList.remove('active');
+                navMenu.classList.remove('active');
+                document.body.classList.remove('menu-open');
+            }
+        });
+    </script>
+
+    <section class="about container">
+        <h1>About TOADCEL</h1>
+        <div class="about-content">
+            <p>Founded in 2020, TOADCEL has been proudly serving the citizens of ToadVille Bay with reliable cellular service. As the premier cellular provider in our unique island nation, we understand the importance of staying connected in today's digital world.</p>
+            
+            <div class="founder-section">
+                <div class="founder-image">
+                    <div class="image-container">
+                        <img src="images/founder.jpg" alt="James Hopper - TOADCEL Founder" class="founder-img">
+                    </div>
+                    <h3 class="founder-name">James Hopper</h3>
+                    <p class="founder-title">Founder & CEO</p>
+                </div>
+                <div class="founder-info">
+                    <h2>Meet Our Founder</h2>
+                    <div class="founder-bio">
+                        <p>James Hopper founded TOADCEL in 2020 with a vision to revolutionize telecommunications in ToadVille Bay. With over 15 years of experience in the tech industry, James recognized the need for reliable, affordable cellular service in our growing island nation.</p>
+                        
+                        <p>Under his leadership, TOADCEL has achieved several milestones:</p>
+                        <ul class="achievements">
+                            <li>Established the first 5G network in ToadVille Bay</li>
+                            <li>Expanded coverage to 99.9% of the island</li>
+                            <li>Launched innovative community-focused initiatives</li>
+                            <li>Created over 500 local jobs</li>
+                        </ul>
+                        
+                        <p>James's philosophy is simple: "Connectivity should be accessible to everyone, and customer satisfaction is our top priority." This mindset has helped TOADCEL become the most trusted telecommunications provider in ToadVille Bay.</p>
+                        
+                        <blockquote class="founder-quote">
+                            "Our success is measured not just by our network coverage, but by the smiles we bring to our customers' faces."
+                        </blockquote>
+                    </div>
+                </div>
+            </div>
+            
+            <h2>Our Mission</h2>
+            <p>To provide the citizens of ToadVille Bay with world-class cellular service at competitive prices, ensuring that everyone stays connected with their loved ones, both locally and internationally.</p>
+            
+            <h2>Our Network</h2>
+            <p>With state-of-the-art infrastructure covering every corner of ToadVille Bay, from the bustling Lily Pad District to the serene Marsh Meadows, our network ensures you're always connected.</p>
+            
+            <h2>Community Involvement</h2>
+            <p>We're proud to be an active part of the ToadVille Bay community, sponsoring local events and supporting various initiatives that make our island nation unique and special.</p>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 TOADCEL. All rights reserved.</p>
+            <p>Proudly serving ToadVille Bay</p>
+        </div>
+    </footer>
+</body>
+</html>

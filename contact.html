@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - TOADCEL</title>
+    <link rel="icon" type="image/png" href="images/TOADCELfavicon.png">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">
+                <img src="images/TOADCEL.png" alt="TOADCEL Logo" class="logo-img">
+            </div>
+            <button class="menu-toggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <ul class="nav-menu">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="plans.html">Plans</a></li>
+                <li><a href="coverage.html">Coverage</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+    <script>
+        const menuToggle = document.querySelector('.menu-toggle');
+        const navMenu = document.querySelector('.nav-menu');
+        
+        menuToggle.addEventListener('click', () => {
+            menuToggle.classList.toggle('active');
+            navMenu.classList.toggle('active');
+            document.body.classList.toggle('menu-open');
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!menuToggle.contains(e.target) && !navMenu.contains(e.target) && navMenu.classList.contains('active')) {
+                menuToggle.classList.remove('active');
+                navMenu.classList.remove('active');
+                document.body.classList.remove('menu-open');
+            }
+        });
+    </script>
+
+    <section class="contact container">
+        <h1>Contact Us</h1>
+        <div class="contact-info">
+            <div class="headquarters">
+                <h2>Main Office</h2>
+                <p>123 Lily Pad Avenue</p>
+                <p>Central District, ToadVille Bay</p>
+                <p>Phone: (555) TOAD-CEL</p>
+                <p>Email: support@toadcel.tv</p>
+            </div>
+
+            <div class="store-locations">
+                <h2>Store Locations</h2>
+                <div class="location">
+                    <h3>Lily Pad District</h3>
+                    <p>45 Pond Street</p>
+                    <p>Open 9 AM - 9 PM Daily</p>
+                </div>
+                
+                <div class="location">
+                    <h3>Marsh Meadows</h3>
+                    <p>78 Reed Road</p>
+                    <p>Open 10 AM - 8 PM Daily</p>
+                </div>
+                
+                <div class="location">
+                    <h3>Froggy Falls</h3>
+                    <p>12 Waterfall Way</p>
+                    <p>Open 9 AM - 7 PM (Mon-Sat)</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 TOADCEL. All rights reserved.</p>
+            <p>Proudly serving ToadVille Bay</p>
+        </div>
+    </footer>
+</body>
+</html>

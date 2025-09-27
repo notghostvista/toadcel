@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Coverage - TOADCEL</title>
+    <link rel="icon" type="image/png" href="images/TOADCELfavicon.png">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="logo">
+                <img src="images/TOADCEL.png" alt="TOADCEL Logo" class="logo-img">
+            </div>
+            <button class="menu-toggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <ul class="nav-menu">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="plans.html">Plans</a></li>
+                <li><a href="coverage.html" class="active">Coverage</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="coverage-lookup">
+        <div class="container">
+            <h1>Check Coverage in Your Area</h1>
+            <p>Select your province to see detailed coverage information for cities in your region.</p>
+            
+            <div class="coverage-selector">
+                <select id="provinceSelect" class="province-dropdown">
+                    <option value="">Select a Province</option>
+                    <option value="aviv">Aviv</option>
+                    <option value="eastern-toadville">Eastern ToadVille Sur</option>
+                    <option value="mexinada">Mexinada</option>
+                    <option value="mihajl">Mihajl</option>
+                    <option value="national-preserve">National Preserve</option>
+                    <option value="northern-islands">Northern Islands</option>
+                    <option value="sonora">Sonora</option>
+                    <option value="south-aviv">South Aviv</option>
+                    <option value="south-sonora">South Sonora</option>
+                    <option value="texcia">Texcia</option>
+                    <option value="toadville-df">ToadVille Bay D.F.</option>
+                    <option value="toadville-islands">ToadVille Islands</option>
+                    <option value="toadville-sur">ToadVille Sur</option>
+                </select>
+            </div>
+
+            <div class="coverage-results">
+                <div class="province-info" id="provinceInfo">
+                    <h2>Select a province to see coverage details</h2>
+                </div>
+                <div class="cities-list" id="citiesList"></div>
+            </div>
+
+
+    <script>
+        // Navigation menu functionality
+        const menuToggle = document.querySelector('.menu-toggle');
+        const navMenu = document.querySelector('.nav-menu');
+        
+        menuToggle.addEventListener('click', () => {
+            menuToggle.classList.toggle('active');
+            navMenu.classList.toggle('active');
+            document.body.classList.toggle('menu-open');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!menuToggle.contains(e.target) && !navMenu.contains(e.target) && navMenu.classList.contains('active')) {
+                menuToggle.classList.remove('active');
+                navMenu.classList.remove('active');
+                document.body.classList.remove('menu-open');
+            }
+        });
+
+        // Coverage data
+        const coverageData = {
+            'toadville-sur': {
+                name: 'ToadVille Sur',
+                overview: '98% coverage with extensive 5G network',
+                cities: [
+                    { name: 'Toadlexico', coverage: '5G' },
+                    { name: 'Puerto Vista', coverage: '5G' },
+                    { name: 'Green Valley', coverage: '4G/LTE' },
+                    { name: 'Buena Cerro', coverage: '4G/LTE' },
+                    { name: 'Preserve Town', coverage: '5G' },
+                    { name: 'Kalictit Nonat', coverage: '5G' },
+                    { name: 'Mar Vista', coverage: '5G' },
+                ]
+            },
+            'eastern-toadville': {
+                name: 'Eastern ToadVille Sur',
+                overview: '95% coverage with mixed 5G and 4G network',
+                cities: [
+                    { name: 'East Harbor', coverage: '5G' },
+                    { name: 'Sunrise City', coverage: '4G/LTE' },
+                    { name: 'Palm Beach', coverage: '5G' },
+                    { name: 'Coast Haven', coverage: '4G/LTE' }
+                ]
+            },
+            'aviv': {
+                name: 'Aviv',
+                overview: '99% coverage with advanced 5G infrastructure',
+                cities: [
+                    { name: 'Aviv Central', coverage: '5G' },
+                    { name: 'Tech District', coverage: '5G' },
+                    { name: 'University City', coverage: '5G' },
+                    { name: 'Innovation Park', coverage: '5G' }
+                ]
+            },
+            'south-aviv': {
+                name: 'South Aviv',
+                overview: '92% coverage with expanding 5G network',
+                cities: [
+                    { name: 'South Point', coverage: '4G/LTE' },
+                    { name: 'Desert Springs', coverage: '5G' },
+                    { name: 'Oasis Town', coverage: '4G/LTE' }
+                ]
+            },
+            'sonora': {
+                name: 'Sonora',
+                overview: '90% coverage with reliable 4G/LTE network',
+                cities: [
+                    { name: 'Sonora City', coverage: '5G' },
+                    { name: 'West Port', coverage: '4G/LTE' },
+                    { name: 'Highland Park', coverage: '4G/LTE' }
+                ]
+            },
+            'south-sonora': {
+                name: 'South Sonora',
+                overview: '85% coverage focusing on 4G/LTE expansion',
+                cities: [
+                    { name: 'South Bay', coverage: '4G/LTE' },
+                    { name: 'Coastal Village', coverage: '3G' },
+                    { name: 'Fish Harbor', coverage: '4G/LTE' }
+                ]
+            },
+            'mexinada': {
+                name: 'Mexinada',
+                overview: '88% coverage with mixed network types',
+                cities: [
+                    { name: 'Mexinada City', coverage: '5G' },
+                    { name: 'Border Town', coverage: '4G/LTE' },
+                    { name: 'Trade Port', coverage: '4G/LTE' }
+                ]
+            },
+            'mihajl': {
+                name: 'Mihajl',
+                overview: '94% coverage with strong 5G presence',
+                cities: [
+                    { name: 'Mihajl City', coverage: '5G' },
+                    { name: 'Noglas', coverage: '5G' },
+                    { name: 'Industrial Zone', coverage: '4G/LTE' }
+                ]
+            },
+            'toadville-df': {
+                name: 'ToadVille Bay D.F.',
+                overview: '100% coverage with premium 5G network',
+                cities: [
+                    { name: 'ToadVille Bay D.F.', coverage: '5G' },
+                    { name: 'Suburban D.F.', coverage: '5G' },
+                ]
+            },
+            'texcia': {
+                name: 'Texcia',
+                overview: '89% coverage with expanding network',
+                cities: [
+                    { name: 'Texcia City', coverage: '5G' },
+                    { name: 'Ranch Town', coverage: '4G/LTE' },
+                    { name: 'Prairie View', coverage: '3G' }
+                ]
+            },
+            'national-preserve': {
+                name: 'National Preserve',
+                overview: '70% coverage respecting natural areas',
+                cities: [
+                    { name: 'Ranger Station', coverage: '4G/LTE' },
+                    { name: 'Visitor Center', coverage: '4G/LTE' },
+                    { name: 'Conservation Camp', coverage: '3G' }
+                ]
+            },
+            'toadville-islands': {
+                name: 'ToadVille Islands',
+                overview: '85% coverage across accessible areas',
+                cities: [
+                    { name: 'Island City', coverage: '5G' },
+                    { name: 'Beach Resort', coverage: '4G/LTE' },
+                    { name: 'Port Town', coverage: '4G/LTE' }
+                ]
+            },
+            'northern-islands': {
+                name: 'Northern Islands',
+                overview: '40% coverage - Limited service due to extreme remote location and harsh weather conditions. Service availability may vary seasonally.',
+                cities: [
+                    { name: 'North Port', coverage: '4G/LTE' },
+                    { name: 'Fishing Village', coverage: '3G' },
+                    { name: 'Remote Station', coverage: '2G' },
+                    { name: 'Alert', coverage: '3G/2G' }
+                ]
+            }
+        };
+
+        // Handle province selection
+        const provinceSelect = document.getElementById('provinceSelect');
+        const provinceInfo = document.getElementById('provinceInfo');
+        const citiesList = document.getElementById('citiesList');
+
+        provinceSelect.addEventListener('change', () => {
+            const selectedProvince = coverageData[provinceSelect.value];
+            
+            if (selectedProvince) {
+                provinceInfo.innerHTML = `
+                    <h2>${selectedProvince.name}</h2>
+                    <p>${selectedProvince.overview}</p>
+                `;
+
+                citiesList.innerHTML = `
+                    <h3>Cities and Coverage</h3>
+                    <div class="cities-grid">
+                        ${selectedProvince.cities.map(city => `
+                            <div class="city-card coverage-${city.coverage.toLowerCase().replace('/', '-')}">
+                                <h4>${city.name}</h4>
+                                <span class="coverage-type">${city.coverage}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } else {
+                provinceInfo.innerHTML = '<h2>Select a province to see coverage details</h2>';
+                citiesList.innerHTML = '';
+            }
+        });
+    </script>
+</body>
+</html>
